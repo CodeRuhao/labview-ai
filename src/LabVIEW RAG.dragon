@@ -1,0 +1,10 @@
+[project]
+labview-version = 2023
+vipc = ""
+
+[nipm]
+
+[vipm]
+
+[vipm.dependencies]
+jki_lib_json_serialization = "1.1.10.37"
