@@ -32,3 +32,5 @@
 # Demo
 
 ## LabVIEW调用本地大模型
+
+## LabVIEW搭建本地知识库
