@@ -9,35 +9,22 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Global constants
-MARKDOWN_DIR = r"\\mazda\AI\materials\DAQmx\hardware\mds"
+MARKDOWN_DIR = "../../../docs/mds"
 PDF_DIR = "../../../docs/pdfs"
 PERSIST_DIR = 'c:\chroma_db'
-COLLECTION_NAME = 'daqmx-test'
+COLLECTION_NAME = 'test'
 
 TEMPERATURE = 0.2
 
-# EMBED_BASE_URL = 'mazda:11433'
-# EMBED_MODEL_NAME = 'rjmalagon/gte-Qwen2-7B-instruct:f16'
-# EMBED_MODEL_NAME = 'mxbai-embed-large'
-# USE_OLLAMA = True
-EMBED_BASE_URL = 'http://sh-rd-rgao3:1234/v1'
+EMBED_BASE_URL = 'http://localhost:1234/v1'
 EMBED_MODEL_NAME = 'mixedbread-ai/mxbai-embed-large-v1'
 USE_OLLAMA = False
 
-BASE_URL = "https://openrouter.ai/api/v1"
-API_KEY = "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"
-MODEL_NAME = "qwen/qwq-32b"
+BASE_URL = 'http://localhost:1234/v1'
+API_KEY = ""
+MODEL_NAME = "deepseek-r1-distill-qwen-7b"
 
-# BASE_URL = "http://10.144.128.8:1234/v1"
-# API_KEY = "not-needed"
-# MODEL_NAME = "deepseek-r1-distill-qwen-1.5b"
-
-#query = "What is the maximum voltage range of NI 9225? What's the price?"
-# query = "NI 9225的最高电压是多少？它的售价是多少？"
-#query = "NI 9437能用来测试什么信号？"
-#query = "How many analog inputs does NI 9230 have?"
 query = "NI 9230有多少个模拟输入？"
-#query = "如何使用NI DAQmx测量角位移？"
 
 ASSISTANT_SYSTEM_PROMPT="Note that when users ask questions about NI hardware, cDAQ-xxxx, NI-xxxx and \"NI xxxx\" refer to the same hardware. \
     e.g. cDAQ-9219 is the same hardware as NI-9219 or \"NI 9219\"."
@@ -65,7 +52,7 @@ def LoadPdfIntoChromDB(
         chroma_persist_dir (str): Directory to persist ChromaDB
         chroma_collection_name (str): Name of the ChromaDB collection
         clear_chromadb (bool): Whether to clear existing ChromaDB data
-        
+
     Returns:
         str: Log of the processing
     """
@@ -80,21 +67,21 @@ def LoadPdfIntoChromDB(
         # Check if PDF directory exists
         if not os.path.exists(pdf_directory):
             raise FileNotFoundError(f"PDF directory does not exist: {pdf_directory}")
-        
+
         # Count PDF files in directory
         pdf_files = glob.glob(os.path.join(pdf_directory, "**/*.pdf"), recursive=True)
         log.append(f"Found {len(pdf_files)} PDF files in {pdf_directory}")
-        
+
         if not pdf_files:
             log.append("No PDF files found. Exiting.")
             return True, "\n".join(log)
-        
+
         # Load PDFs from directory
         loader = DirectoryLoader(pdf_directory, glob="**/*.pdf", loader_cls=PyPDFLoader)
         documents = loader.load()
         pdf_count = len(set([doc.metadata.get('source', '') for doc in documents]))
         log.append(f"Loaded {len(documents)} pages from {pdf_count} PDF files")
-        
+
         # Split documents into chunks
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
@@ -103,20 +90,20 @@ def LoadPdfIntoChromDB(
         )
         splits = text_splitter.split_documents(documents)
         log.append(f"Split into {len(splits)} chunks")
-        
+
         # Get embedding function using the provided function
         embedding_function = get_embeddings(
             embed_model_name,
             embedding_api_base_url,
             isOllama=False
         )
-        
+
         # Initialize ChromaDB
         if clear_chromadb and os.path.exists(chroma_persist_dir):
             import shutil
             shutil.rmtree(chroma_persist_dir)
             log.append(f"Cleared existing ChromaDB at {chroma_persist_dir}")
-        
+
         # Create vector store
         log.append(f"Creating vector store in {chroma_persist_dir} with collection name {chroma_collection_name}")
         vectordb = Chroma.from_documents(
@@ -126,10 +113,10 @@ def LoadPdfIntoChromDB(
             collection_name=chroma_collection_name
         )
         log.append(f"Successfully stored {len(splits)} chunks in ChromaDB collection '{chroma_collection_name}'")
-        
+
         elapsed_time = time.time() - start_time
         log.append(f"Total processing time: {elapsed_time:.2f} seconds")
-    
+
     except Exception as e:
         log.append(f"Error: {str(e)}")
         import traceback
@@ -151,15 +138,15 @@ def get_embeddings(embed_model_name, base_url, isOllama):
         )
 
 def ProcessMarkdownFiles(
-    markdown_dir, 
-    chunk_size, 
-    chunk_overlap, 
-    separators, 
-    embed_model_name, 
-    base_url, 
-    persist_dir, 
-    collection_name, 
-    clear=True, 
+    markdown_dir,
+    chunk_size,
+    chunk_overlap,
+    separators,
+    embed_model_name,
+    base_url,
+    persist_dir,
+    collection_name,
+    clear=True,
     isOllama=False
 ):
     # 加载Markdown文件
@@ -189,9 +176,9 @@ def ProcessMarkdownFiles(
 
     # 存入向量数据库
     Chroma.from_documents(
-        texts, 
-        embeddings, 
-        persist_directory=persist_dir, 
+        texts,
+        embeddings,
+        persist_directory=persist_dir,
         collection_name=collection_name
     )
 
@@ -213,7 +200,7 @@ def RetrieveContextsByUserQuery(collection_name, persist_directory, query, model
 def AskLLM(user_query, model_name, temperature, api_key, base_url, system_prompt="", rag_context=""):
     # Construct a combined prompt with rag context and user query when rag_context is not empty.
     # Remove leading/trailing whitespace
-    trimmed_context = rag_context.strip()  
+    trimmed_context = rag_context.strip()
     if trimmed_context:
         combined_prompt = f"Context: {trimmed_context}\n\nUser Query: {user_query}"
     else:
@@ -226,12 +213,12 @@ def AskLLM(user_query, model_name, temperature, api_key, base_url, system_prompt
         api_key=api_key,
         base_url=base_url
     )
-    
+
     # Send the system_prompt and combined prompt to LLM if system_prompt is not empty.
     trimmed_system_prompt = system_prompt.strip()
     if trimmed_system_prompt:
         response = model.invoke([
-            {'role': 'system', 'content': trimmed_system_prompt},        
+            {'role': 'system', 'content': trimmed_system_prompt},
             {'role': 'user', 'content': combined_prompt}
         ])
     else:
@@ -276,7 +263,7 @@ if __name__ == "__main__":
         exit(1)
 
     rag_context = RetrieveContextsByUserQuery(
-        collection_name=COLLECTION_NAME, 
+        collection_name=COLLECTION_NAME,
         persist_directory=PERSIST_DIR,
         query=query,
         model_url=EMBED_BASE_URL,
@@ -285,7 +272,7 @@ if __name__ == "__main__":
         isOllama=USE_OLLAMA
     )
 
-    print("rag_context: \n", rag_context)    
+    print("rag_context: \n", rag_context)
     print("\nrag_context: end\n")
 
     # Send the context and user query to LLM
