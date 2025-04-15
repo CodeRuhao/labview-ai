@@ -12,13 +12,21 @@
 		<Property Name="NI.LibItem.Scope" Type="Int">2</Property>
 		<Item Name="Parse Chat Reply from JSON.vi" Type="VI" URL="../Parse Chat Reply from JSON.vi"/>
 		<Item Name="Get Answer and Reasoning.vi" Type="VI" URL="../Get Answer and Reasoning.vi"/>
+		<Item Name="Filter Vision Model.vi" Type="VI" URL="../Filter Vision Model.vi"/>
 	</Item>
 	<Item Name="Typedefs" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
+		<Item Name="multimodel" Type="Folder">
+			<Item Name="openai_complex_message.ctl" Type="VI" URL="../openai_complex_message.ctl"/>
+			<Item Name="chat completions image (OpenAI).vi" Type="VI" URL="../chat completions image (OpenAI).vi"/>
+			<Item Name="chat-completion complex req.ctl" Type="VI" URL="../chat-completion complex req.ctl"/>
+		</Item>
 		<Item Name="chat-completion req.ctl" Type="VI" URL="../chat-completion req.ctl"/>
 		<Item Name="chat-completion non-stream response.ctl" Type="VI" URL="../chat-completion non-stream response.ctl"/>
 		<Item Name="chat-completion stream response.ctl" Type="VI" URL="../chat-completion stream response.ctl"/>
 		<Item Name="openai_message.ctl" Type="VI" URL="../openai_message.ctl"/>
+		<Item Name="chat-role.ctl" Type="VI" URL="../chat-role.ctl"/>
+		<Item Name="complex content.ctl" Type="VI" URL="../complex content.ctl"/>
 	</Item>
 	<Item Name="APIs" Type="Folder">
 		<Item Name="Get Models (OpenAI).vi" Type="VI" URL="../Get Models (OpenAI).vi"/>
@@ -31,4 +39,5 @@
 		<Item Name="REST API Example - 2.vi" Type="VI" URL="../REST API Example - 2.vi"/>
 	</Item>
 	<Item Name="LabVIEW调用本地大模型.vi" Type="VI" URL="../LabVIEW调用本地大模型.vi"/>
+	<Item Name="LabVIEW调用多模态大模型.vi" Type="VI" URL="../LabVIEW调用多模态大模型.vi"/>
 </Library>
