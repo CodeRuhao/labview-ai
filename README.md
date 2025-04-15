@@ -31,10 +31,31 @@
 
 # Demo
 
-## LabVIEW调用本地大模型
+## 下载开源大模型
 
-TBD
+- 下载并安装LM Studio
+  https://lmstudio.ai/
+
+  ![lmstudio](docs/.img/image.png)
+
+- 在LM Studio中搜索并下载开源大模型
+  ![lmstudio_gif](docs/.img/LM_Studio.gif)
+
+- 打开如下设置来启用本地访问
+  ![alt text](docs/.img/image-1.png)
+
+## LabVIEW调用本地开源大模型
+
+- 打开"src\LabVIEW with Local Model.lvproj"
+  ![alt text](docs/.img/image-2.png)
+
+- 打开"LabVIEW调用本地大模型.vi"
+  ![alt text](docs/.img/image-3.png)
 
 ## LabVIEW搭建本地知识库
 
-TBD
+- 打开"src\LabVIEW RAG.lvproj"
+  ![alt text](docs/.img/image-4.png)
+
+- 打开"LabVIEW结合知识库调用本地大模型.vi"
+  ![alt text](docs/.img/image-5.png)
